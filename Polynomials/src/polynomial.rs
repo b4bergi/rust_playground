@@ -18,8 +18,14 @@ impl Polynomial {
                 self.coefficients.get(i).unwrap_or(&0) + other.coefficients.get(i).unwrap_or(&0),
             );
         }
+        let result: Vec<i32> = result.into_iter().take_while(|&x| x != 0).collect();
 
-        Polynomial::new(result)
+        if result.len() == 0 // trim leading zeroes
+        {
+            Polynomial::new(vec![0])
+        } else {
+            Polynomial::new(result)
+        }
     }
 
     pub fn multiply(self, other: Polynomial) -> Polynomial {
@@ -27,6 +33,15 @@ impl Polynomial {
             self.coefficients.iter().map(|&x| x as f64).collect(),
             other.coefficients.iter().map(|&x| x as f64).collect(),
         );
-        Polynomial::new(coefficients.iter().map(|&x| x as i32).collect())
+
+        let coefficients: Vec<i32> = coefficients.iter().map(|&x| x as i32).take_while(|&x| x != 0).collect();
+
+        if coefficients.len() == 0 // trim leading zeroes
+        {
+            Polynomial::new(vec![0])
+        } else {
+            Polynomial::new(coefficients)
+        }
+
     }
 }
