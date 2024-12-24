@@ -1,8 +1,8 @@
 use crate::fft::Fft;
 use std::ops;
-//TODO clean up this file
+//TODO obsolete
 #[derive(Clone)]
-pub struct Polynomial {
+struct Polynomial {
     pub coefficients: Vec<i32>,
     pub modulus: i32,
 }
