@@ -1,4 +1,3 @@
-mod polynomial;
 mod fft;
 mod polynomial_test;
 mod key_generation;

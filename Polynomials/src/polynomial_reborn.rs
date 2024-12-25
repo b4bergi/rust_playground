@@ -35,8 +35,18 @@ impl PolynomialReborn {
         PolynomialReborn::new(result)
     }
 
+    pub fn subtract(self, rhs: PolynomialReborn) -> PolynomialReborn {
+        self.add(rhs.scale(-1))
+    }
+
     pub fn remove_leading_zeroes(self) -> PolynomialReborn {
-        let result: Vec<i64> = self.coefficients.into_iter().take_while(|&x| x != 0).collect();
+        let result: Vec<i64> =
+            self.coefficients.into_iter()
+                .rev().skip_while(|&x| x == 0)
+                .collect::<Vec<_>>()
+                .into_iter()
+                .rev()
+                .collect();
 
         if result.len() == 0 {
             PolynomialReborn::new(vec![0])
@@ -55,18 +65,53 @@ impl PolynomialReborn {
     }
 
     pub fn polynomial_modulus(self, modulus: PolynomialReborn) -> PolynomialReborn {
-        // TODO test this
-        let mut new_coefficients = self.coefficients;
-        for i in (modulus.coefficients.len()..new_coefficients.len()).rev() {
-            for j in 0..modulus.coefficients.len() {
-                new_coefficients[i - modulus.coefficients.len() + j] = new_coefficients
-                    [i - modulus.coefficients.len() + j]
-                    - new_coefficients[i] * modulus.coefficients.get(j).unwrap_or(&0);
-            }
+        self.divide(modulus).1
+    }
+
+    pub fn divide(self, rhs: PolynomialReborn) -> (PolynomialReborn, PolynomialReborn) {
+        let lhs_deg = self.degree();
+        let rhs_deg = rhs.degree();
+
+        if rhs_deg == 0 {
+            //TODO cannot divide by 0
         }
 
-        PolynomialReborn::new(new_coefficients)
+        let mut quot = PolynomialReborn::new(Vec::with_capacity(1 + lhs_deg.saturating_sub(rhs_deg)));
+        for _i in 0..quot.coefficients.capacity() {
+            quot.coefficients.push(0);
+        }
+
+        let mut rem = self.clone();
+
+        let mut rhs = rhs.clone();
+        for _i in 0..(lhs_deg - rhs_deg) {
+            rhs.coefficients.insert(0, 0);
+        }
+
+        for i in (0..(1 + lhs_deg - rhs_deg)).rev() {
+            quot.coefficients[i] = rem.coefficients[rhs_deg + i] / rhs.coefficients[rhs_deg + i];
+
+            rem = rem.subtract(rhs.clone().scale(quot.coefficients[i]).clone());
+
+            rhs.coefficients.remove(0);
+        }
+
+        let quot_deg = quot.degree();
+        let rem_deg = rem.degree();
+        quot.coefficients.truncate(quot_deg + 1);
+        rem.coefficients.truncate(rem_deg + 1);
+        (quot, rem)
     }
+
+    pub fn degree(&self) -> usize {
+        self.coefficients.iter()
+            .enumerate()
+            .rev()
+            .find(|&(_i, &n)| n != 0)
+            .map(|(i, _n)| i)
+            .unwrap_or(0) // should this be - infinity
+    }
+
 
     pub fn scale(self, factor: i64) -> PolynomialReborn {
         let new_coefficients = self.coefficients.iter().map(|&x| factor * x).collect();
