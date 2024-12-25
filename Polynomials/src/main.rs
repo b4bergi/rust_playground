@@ -2,6 +2,7 @@ mod fft;
 mod polynomial_test;
 mod key_generation;
 mod polynomial_reborn;
+mod HomomorphicEncryption;
 
 fn main() {
     println!("Hello, world!");

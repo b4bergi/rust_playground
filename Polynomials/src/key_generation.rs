@@ -7,7 +7,7 @@ pub struct Key {
 }
 
 impl Key {
-    fn get_binary_polynomial(size: usize) -> PolynomialReborn {
+    pub fn get_binary_polynomial(size: usize) -> PolynomialReborn {
         let bernoulli = Bernoulli::new(0.5).unwrap();
         let coefficients: Vec<i64> = thread_rng()
             .sample_iter(&bernoulli)
@@ -17,13 +17,13 @@ impl Key {
         PolynomialReborn::new(coefficients).coefficient_modulus(2)
     }
 
-    fn get_uniform_polynomial(size: usize, modulus: i64) -> PolynomialReborn {
+    pub fn get_uniform_polynomial(size: usize, modulus: i64) -> PolynomialReborn {
         let between = Uniform::from(0..modulus);
         let coefficients: Vec<i64> = thread_rng().sample_iter(&between).take(size).collect();
         PolynomialReborn::new(coefficients).coefficient_modulus(modulus)
     }
 
-    fn get_normal_polynomial(size: usize) -> PolynomialReborn {
+    pub fn get_normal_polynomial(size: usize) -> PolynomialReborn {
         let normal = Normal::new(0.0, 2.0).unwrap();
         let coefficients = thread_rng()
             .sample_iter(&normal)
